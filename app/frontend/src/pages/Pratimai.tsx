@@ -143,7 +143,6 @@ function ExerciseCard({ exercise, completed, onToggle }: {
           <h4 className={`text-base font-semibold ${completed ? 'text-[#5B8A72]' : 'text-[#2D3436]'}`}>
             {exercise.exercise_name}
           </h4>
-          <p className="text-sm text-[#636E72] mt-0.5">{exercise.short_instruction}</p>
           <p className="text-sm text-[#5B8A72] font-medium mt-1">⏱ {exercise.time_reps}</p>
         </div>
       </div>
