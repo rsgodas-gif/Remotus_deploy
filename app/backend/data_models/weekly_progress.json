@@ -1,0 +1,80 @@
+{
+    "title": "weekly_progress",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "patient_id": {
+            "type": "integer",
+            "description": "Reference to patient ID"
+        },
+        "week": {
+            "type": "integer",
+            "description": "Week number"
+        },
+        "pain_avg": {
+            "type": "integer",
+            "description": "Average pain level 1-10"
+        },
+        "pain_spread": {
+            "type": "string",
+            "description": "Where pain spreads"
+        },
+        "pain_relief": {
+            "type": "string",
+            "description": "What relieves pain"
+        },
+        "pain_worsen": {
+            "type": "string",
+            "description": "What worsens pain"
+        },
+        "movement": {
+            "type": "integer",
+            "description": "Movement ease 1-10"
+        },
+        "energy": {
+            "type": "integer",
+            "description": "Energy level 1-10"
+        },
+        "exercise_frequency": {
+            "type": "integer",
+            "description": "How often did program 1-10"
+        },
+        "how_feeling": {
+            "type": "string",
+            "description": "How feeling this week"
+        },
+        "hard_exercises": {
+            "type": "string",
+            "description": "Which exercises were hard"
+        },
+        "liked_exercises": {
+            "type": "string",
+            "description": "Which exercises were liked"
+        },
+        "progress_exercises": {
+            "type": "string",
+            "description": "Most progress exercises"
+        },
+        "other_notes": {
+            "type": "string",
+            "description": "Other notes"
+        },
+        "entry_date": {
+            "type": "string",
+            "description": "Date of entry YYYY-MM-DD"
+        }
+    },
+    "required": [
+        "id",
+        "patient_id",
+        "week",
+        "pain_avg",
+        "movement",
+        "energy",
+        "exercise_frequency",
+        "entry_date"
+    ]
+}

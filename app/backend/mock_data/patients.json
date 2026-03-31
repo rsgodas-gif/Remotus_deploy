@@ -1,0 +1,122 @@
+[
+    {
+        "name": "Jonas Kazlauskas",
+        "email": "jonas@test.lt",
+        "phone": "+37061111111",
+        "assigned_program": "Programa A",
+        "week": 1,
+        "access_allowed": true,
+        "login_alias": "",
+        "problem_situation": ""
+    },
+    {
+        "name": "Ona Petraitienė",
+        "email": "ona@test.lt",
+        "phone": "+37062222222",
+        "assigned_program": "Programa A",
+        "week": 1,
+        "access_allowed": true,
+        "login_alias": "",
+        "problem_situation": ""
+    },
+    {
+        "name": "Petras Jonaitis",
+        "email": "petras@test.lt",
+        "phone": "+37063333333",
+        "assigned_program": "Programa B",
+        "week": 1,
+        "access_allowed": false,
+        "login_alias": "",
+        "problem_situation": ""
+    },
+    {
+        "name": "Greta Antanavičiutė",
+        "email": "greta.antanaviciute@gmail.com",
+        "phone": "+37060619577",
+        "assigned_program": "Nugaros stiprinimo programa",
+        "week": 1,
+        "access_allowed": true,
+        "login_alias": "",
+        "problem_situation": ""
+    },
+    {
+        "name": "Rima Baginskienė",
+        "email": "rima.b@gmail.com",
+        "phone": "+37068132883",
+        "assigned_program": "Nugaros stiprinimas",
+        "week": 3,
+        "access_allowed": true,
+        "login_alias": "",
+        "problem_situation": ""
+    },
+    {
+        "name": "Eta Antanavičiūtė",
+        "email": "eta.anataviciute@gmail.com",
+        "phone": "+37060000000",
+        "assigned_program": "Nugaros stiprinimo programa",
+        "week": 1,
+        "access_allowed": true,
+        "login_alias": "",
+        "problem_situation": ""
+    },
+    {
+        "name": "Rimutė Balčaitytė Lendzevičienė",
+        "email": "rimute.b@personalizuota.lt",
+        "phone": "+37064000001",
+        "assigned_program": "Personalizuota – Rimutė B.",
+        "week": 2,
+        "access_allowed": true,
+        "login_alias": "rimute.b",
+        "problem_situation": "Ūminė radikulopatija (dirginamas nervas)"
+    },
+    {
+        "name": "Sigita Šilerytė Šiusienė",
+        "email": "sigita.s@personalizuota.lt",
+        "phone": "+37064000002",
+        "assigned_program": "Personalizuota – Sigita Š.",
+        "week": 2,
+        "access_allowed": true,
+        "login_alias": "sigita.s",
+        "problem_situation": "Stuburo stenozė po operacijos (labai jautri nervinė sistema)"
+    },
+    {
+        "name": "Alina Golubovskytė",
+        "email": "alina.g@personalizuota.lt",
+        "phone": "+37064000003",
+        "assigned_program": "Personalizuota – Alina G.",
+        "week": 2,
+        "access_allowed": true,
+        "login_alias": "alina.g",
+        "problem_situation": "Lėtinė disko išvarža su epizodine radikulopatija + kaklo skausmas"
+    },
+    {
+        "name": "Rita Lisauskienė",
+        "email": "rita.l@personalizuota.lt",
+        "phone": "+37064000004",
+        "assigned_program": "Personalizuota – Rita L.",
+        "week": 2,
+        "access_allowed": true,
+        "login_alias": "rita.l",
+        "problem_situation": "Diskogeninis skausmas (blogėja sėdint – fleksijos netoleravimas)"
+    },
+    {
+        "name": "Laura Rafanavičiūtė",
+        "email": "laura.r@personalizuota.lt",
+        "phone": "+37064000005",
+        "assigned_program": "Personalizuota – Laura R.",
+        "week": 2,
+        "access_allowed": true,
+        "login_alias": "laura.r",
+        "problem_situation": "L5-S1 radikulopatija (jaunas pacientas)"
+    },
+    {
+        "name": "Patricija Augustina Jatautytė",
+        "email": "patricija.j@personalizuota.lt",
+        "phone": "+37064000006",
+        "assigned_program": "Personalizuota – Patricija J.",
+        "week": 1,
+        "access_allowed": true,
+        "login_alias": "patricija.j",
+        "problem_situation": "Krūtininės dalies + mentės stabilumo sutrikimas"
+    }
+]

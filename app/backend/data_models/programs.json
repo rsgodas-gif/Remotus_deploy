@@ -1,0 +1,59 @@
+{
+    "title": "programs",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "program_name": {
+            "type": "string",
+            "description": "Name of the exercise program"
+        },
+        "week": {
+            "type": "integer",
+            "description": "Week number this exercise belongs to"
+        },
+        "exercise_group": {
+            "type": "string",
+            "description": "Exercise group name"
+        },
+        "exercise_group_emoji": {
+            "type": "string",
+            "description": "Emoji for the exercise group"
+        },
+        "exercise_group_order": {
+            "type": "integer",
+            "description": "Order of the exercise group"
+        },
+        "exercise_name": {
+            "type": "string",
+            "description": "Name of the exercise"
+        },
+        "time_reps": {
+            "type": "string",
+            "description": "Duration or repetitions"
+        },
+        "video_link": {
+            "type": "string",
+            "description": "YouTube video URL"
+        },
+        "short_instruction": {
+            "type": "string",
+            "description": "Brief description of the exercise"
+        },
+        "exercise_order": {
+            "type": "integer",
+            "description": "Order of exercise within the group"
+        }
+    },
+    "required": [
+        "id",
+        "program_name",
+        "week",
+        "exercise_group",
+        "exercise_name",
+        "time_reps",
+        "video_link"
+    ]
+}

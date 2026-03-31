@@ -1,0 +1,43 @@
+{
+    "title": "patients",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "name": {
+            "type": "string",
+            "description": "Patient full name"
+        },
+        "email": {
+            "type": "string",
+            "description": "Patient email address"
+        },
+        "phone": {
+            "type": "string",
+            "description": "Patient phone number"
+        },
+        "assigned_program": {
+            "type": "string",
+            "description": "Name of the assigned exercise program"
+        },
+        "week": {
+            "type": "integer",
+            "description": "Current week number in the program"
+        },
+        "access_allowed": {
+            "type": "boolean",
+            "description": "Whether the patient has access to the app"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "email",
+        "phone",
+        "assigned_program",
+        "week",
+        "access_allowed"
+    ]
+}
