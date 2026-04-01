@@ -15,6 +15,7 @@ import Prisijungti from './pages/Prisijungti';
 import AccessDenied from './pages/AccessDenied';
 import AuthCallback from './pages/AuthCallback';
 import NotFound from './pages/NotFound';
+import Stebesena from './pages/Stebesena';
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,8 @@ const AppRoutes = () => {
       <Route path="/skausmo-paumejimas" element={<ProtectedRoute><SkausmoPaumejimas /></ProtectedRoute>} />
       {/* Progress page is always accessible (allowWhenLocked) */}
       <Route path="/progresas" element={<ProtectedRoute allowWhenLocked><SavaitesProgresas /></ProtectedRoute>} />
+      {/* Internal monitoring page (separate from patient flow) */}
+      <Route path="/stebesena" element={<ProtectedRoute allowWhenLocked><Stebesena /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -19,6 +19,28 @@ from services.auth import initialize_admin_user
 # MODULE_IMPORTS_END
 
 
+def get_cors_kwargs() -> dict:
+    """Build CORS config from env. If CORS_ALLOWED_ORIGINS is empty, keep permissive fallback."""
+    raw = os.environ.get("CORS_ALLOWED_ORIGINS", "").strip()
+    if not raw:
+        return {
+            "allow_origin_regex": r".*",
+            "allow_credentials": True,
+            "allow_methods": ["*"],
+            "allow_headers": ["*"],
+            "expose_headers": ["*"],
+        }
+
+    origins = [item.strip() for item in raw.split(",") if item.strip()]
+    return {
+        "allow_origins": origins,
+        "allow_credentials": True,
+        "allow_methods": ["*"],
+        "allow_headers": ["*"],
+        "expose_headers": ["*"],
+    }
+
+
 def setup_logging():
     """Configure the logging system."""
     if os.environ.get("IS_LAMBDA") == "true":
@@ -89,11 +111,7 @@ app = FastAPI(
 # MODULE_MIDDLEWARE_START
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r".*",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
+    **get_cors_kwargs(),
 )
 # MODULE_MIDDLEWARE_END
 
