@@ -79,8 +79,8 @@ const AppRoutes = () => {
       <Route path="/skausmo-paumejimas" element={<ProtectedRoute><SkausmoPaumejimas /></ProtectedRoute>} />
       {/* Progress page is always accessible (allowWhenLocked) */}
       <Route path="/progresas" element={<ProtectedRoute allowWhenLocked><SavaitesProgresas /></ProtectedRoute>} />
-      {/* Internal monitoring page (separate from patient flow) */}
-      <Route path="/stebesena" element={<ProtectedRoute allowWhenLocked><Stebesena /></ProtectedRoute>} />
+      {/* Internal monitoring page (public for early operator/testing usage) */}
+      <Route path="/stebesena" element={<Stebesena />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
