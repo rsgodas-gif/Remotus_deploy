@@ -58,12 +58,13 @@ const SEVERITY_STYLE: Record<Severity, string> = {
 
 function parseDate(value: string): Date | null {
   if (!value) return null;
-  const m = value.match(/^(\d{4})[-.](\d{1,2})[-.](\d{1,2})/);
+  const v = value.trim();
+  const m = v.match(/^(\d{4})[-.](\d{1,2})[-.](\d{1,2})/);
   if (m) {
     const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
     return Number.isNaN(d.getTime()) ? null : d;
   }
-  const fallback = new Date(value);
+  const fallback = new Date(v);
   return Number.isNaN(fallback.getTime()) ? null : fallback;
 }
 
