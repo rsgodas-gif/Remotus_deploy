@@ -1,0 +1,57 @@
+---
+description: Production patient/program DB workflow — Railway SQLite, official upsert script, no Postgres assumption
+alwaysApply: true
+---
+
+# Re:Motus — production patient & program updates
+
+## Assume unless overridden
+
+Live production today:
+
+- **Railway service:** `Remotus_deploy`
+- **Database:** SQLite at **`/app/app.db`** in that container
+- **Not** the live app DB: Postgres plugin **`Postgres-EKdv`** (do not assume Postgres is live without explicit re-verification)
+
+## Operational rule
+
+For **any** of: new patient; change `assigned_program`; new week; change exercises; `problem_situation`; moving **visible** week (`patients.week`):
+
+- **Repo / local edits alone are not enough** for production data.
+- **Local SQLite** (`app/backend/app.db` or `.env` URL) **≠** production **`/app/app.db`** unless you deliberately sync.
+- **Default:** production updates go through the **committed, production-safe script** workflow — **not** ad-hoc manual DB edits (manual = **emergency-only**, say so explicitly if ever suggested).
+
+## Official script & docs
+
+- Script: `app/backend/scripts/upsert_patient_program_week_sqlite.py`
+- Runbook: `app/backend/PRODUCTION_DB_RUNBOOK.md`
+- Examples: `app/backend/scripts/USAGE_EXAMPLES.md`
+
+## Official production sequence (recommend every time)
+
+1. Prepare/update payload in code (and extend script preset/list if a new patient/week).
+2. **Commit + push + redeploy** if script or payload in image changed.
+3. **`railway ssh`** → run script with **`--dry-run`** against **`/app/app.db`**.
+4. Confirm printed **patient**, **`assigned_program`**, **target `programs.week`**, and planned row counts.
+5. Run **apply** with **`--backup-dir`** (e.g. `/tmp`).
+6. Run **`--verify-only`** for same `login_alias` + week.
+7. To change **visible** week in the app (`patients.week`): use an **optional flag on the official script** once it exists — **not** silent manual production SQL. If the flag is missing, add it to the script rather than ad-hoc edits.
+
+## Safety (never skip)
+
+- Never skip **dry-run** before first apply of a change.
+- Never skip **verify-only** after apply.
+- Never change **unrelated** patients or **wrong** `program_name` / `week` slice.
+- Never assume local or Postgres changes affect production without checking the real target.
+
+## Agent behavior when the user asks for patient/program updates
+
+Reply **short and practical**, in this shape:
+
+1. **What needs to change** (code vs DB vs both).
+2. **Whether production data must be updated** (usually yes if exercises/week/problem/visibility).
+3. **Exact next safe step** — commands only (dry-run → apply → verify), plus commit/push/redeploy if needed.
+
+**Warn** if the user is about to change only local/mock files without the Railway script path.
+
+Do **not** refactor app architecture in these answers unless asked.

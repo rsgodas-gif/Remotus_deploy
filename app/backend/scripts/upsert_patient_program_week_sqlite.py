@@ -241,15 +241,24 @@ def main() -> int:
         conn = sqlite3.connect(str(db_path_p))
         conn.row_factory = sqlite3.Row
         try:
+            print("=== Verify-only (read-only) ===")
+            print(f"Database file: {db_path_p.resolve()}")
             patient = fetch_patient(conn, args.login_alias)
             if patient is None:
                 print(f"No patient login_alias={args.login_alias!r}")
                 return 1
             pdict = {k: patient[k] for k in patient.keys()}
-            print(json.dumps({"patient": pdict}, ensure_ascii=False, indent=2))
+            print(
+                "Patient identity: "
+                f"id={pdict.get('id')} | name={pdict.get('name')!r} | login_alias={pdict.get('login_alias')!r}"
+            )
+            print(f"assigned_program: {pdict.get('assigned_program')!r}")
+            print(f"patient.week (UI): {pdict.get('week')}")
             prog = pdict.get("assigned_program")
             rows = fetch_program_week(conn, prog, args.week)
-            print(json.dumps({"program_name": prog, "week": args.week, "rows": rows}, ensure_ascii=False, indent=2))
+            print(f"Target programs.week: {args.week} | existing row count: {len(rows)}")
+            print("--- Full JSON ---")
+            print(json.dumps({"patient": pdict, "program_name": prog, "week": args.week, "rows": rows}, ensure_ascii=False, indent=2))
         finally:
             conn.close()
         return 0
@@ -281,12 +290,21 @@ def main() -> int:
     conn = sqlite3.connect(str(db_path_p))
     conn.row_factory = sqlite3.Row
     try:
+        print("=== Database file ===")
+        print(str(db_path_p.resolve()))
         patient = fetch_patient(conn, args.login_alias)
-        print("=== Target patient (before) ===")
+        print("\n=== Target patient (identity) ===")
         if patient is None:
             print(f"No patient with login_alias={args.login_alias!r}")
             return 1
         pdict = {k: patient[k] for k in patient.keys()}
+        print(
+            "Patient identity: "
+            f"id={pdict.get('id')} | name={pdict.get('name')!r} | login_alias={pdict.get('login_alias')!r}"
+        )
+        print(f"assigned_program: {pdict.get('assigned_program')!r}")
+        print(f"patient.week (UI current week; NOT modified by this script): {pdict.get('week')}")
+        print("\n--- Full patient row (before) ---")
         print(json.dumps(pdict, ensure_ascii=False, indent=2))
 
         if pdict.get("assigned_program") != args.program_name:
@@ -296,17 +314,30 @@ def main() -> int:
             )
             return 1
 
+        print("\n=== Target programs slice ===")
+        print(f"program_name (must match assigned_program): {args.program_name!r}")
+        print(f"week (programs.week to replace): {args.week}")
+
         existing = fetch_program_week(conn, args.program_name, args.week)
-        print(f"\n=== Existing programs rows: program_name + week={args.week} ({len(existing)} rows) ===")
+        existing_count = len(existing)
+        print(f"\nExisting row count (programs for this name+week): {existing_count}")
+        print("--- Existing rows (full) ---")
         print(json.dumps(existing, ensure_ascii=False, indent=2))
 
         insert_rows = build_insert_rows(args.program_name, args.week, exercises)
-        print(f"\n=== Planned: delete {len(existing)} row(s), insert {len(insert_rows)} row(s) ===")
-        print(f"=== Planned: UPDATE patients SET problem_situation=... WHERE id={pdict['id']} AND login_alias={args.login_alias!r} ===")
-        print("=== NOT changing patient.week ===")
+        insert_count = len(insert_rows)
+        print("\n=== Planned changes ===")
+        print(f"Will DELETE then INSERT: existing row count {existing_count} → inserted row count {insert_count}")
+        print(f"Will UPDATE patients.problem_situation (where id={pdict['id']} AND login_alias={args.login_alias!r})")
+        print(f"New problem_situation: {args.problem_situation!r}")
+        print("patient.week: unchanged")
 
         if args.dry_run:
-            print("\n[DRY-RUN] No backup written; no DB changes.")
+            print("\n=== Summary (dry-run) ===")
+            print(f"Database: {db_path_p.resolve()}")
+            print(f"Existing program rows: {existing_count} | Would insert: {insert_count}")
+            print(f"Would set problem_situation to: {args.problem_situation!r}")
+            print("[DRY-RUN] No backup written; no DB changes.")
             return 0
 
         backup = {
@@ -343,7 +374,12 @@ def main() -> int:
             if cur.rowcount != 1:
                 raise RuntimeError(f"UPDATE patients expected 1 row, got {cur.rowcount}")
             conn.commit()
-            print(f"OK: deleted {deleted} program row(s), inserted {len(insert_rows)}, updated patient problem_situation.")
+            print("\n=== Result (applied) ===")
+            print(f"Database: {db_path_p.resolve()}")
+            print(f"Patient identity: id={pdict['id']} | login_alias={args.login_alias!r}")
+            print(f"programs: deleted {deleted} row(s), inserted {insert_count} row(s) (program_name + week={args.week})")
+            print(f"patients.problem_situation updated to: {args.problem_situation!r}")
+            print(f"patient.week (unchanged): {pdict.get('week')}")
         except Exception:
             conn.rollback()
             raise
