@@ -1,0 +1,11 @@
+.git
+.cursor
+**/__pycache__
+**/*.pyc
+**/.venv
+**/venv
+*.db
+app/frontend/node_modules
+node_modules
+uploads
+.wiki.md
