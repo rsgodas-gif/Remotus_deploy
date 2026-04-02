@@ -28,7 +28,7 @@ interface PatientDashboardRow {
   week: number;
   severity: Severity;
   lastProgressDate: string | null;
-  submittedThisWeek: boolean;
+  submittedThisWeek: boolean; // whether there is a weekly_progress entry for patient.week
   daysSinceLast: number | null;
   trend: Trend;
   status: Status;
@@ -82,10 +82,27 @@ function getTrend(entries: WeeklyProgress[]): Trend {
   return 'stable';
 }
 
-function getStatus(submittedThisWeek: boolean, daysSinceLast: number | null, trend: Trend): Status {
-  if (daysSinceLast === null || daysSinceLast > 7 || trend === 'worsening') return 'red';
-  if (!submittedThisWeek || daysSinceLast >= 6 || trend === 'stable') return 'yellow';
-  return 'green';
+function getStatus(
+  submittedThisWeek: boolean,
+  daysSinceWeekEntry: number | null,
+  daysSinceLast: number | null,
+  trend: Trend
+): Status {
+  // Simple deterministic rules:
+  // - Red: no submission for assigned week OR worsening trend OR last submission is very old
+  // - Yellow: assigned-week submitted but symptoms unchanged (stable) OR near-overdue
+  // - Green: assigned-week submitted and symptoms improving
+  if (!submittedThisWeek) {
+    if (daysSinceLast === null || daysSinceLast > 7) return 'red';
+    return 'yellow';
+  }
+
+  if (trend === 'worsening') return 'red';
+  if (trend === 'stable') return 'yellow';
+
+  // improving: require on-time-ish freshness for the assigned-week entry
+  if (daysSinceWeekEntry !== null && daysSinceWeekEntry <= 7) return 'green';
+  return 'yellow';
 }
 
 export default function Stebesena() {
@@ -134,10 +151,16 @@ export default function Stebesena() {
 
             const latest = entries[0];
             const latestDate = latest ? parseDate(latest.entry_date) : null;
-            const days = latestDate ? daysSince(latestDate) : null;
-            const submittedThisWeek = days !== null && days <= 7;
+            const daysSinceLast = latestDate ? daysSince(latestDate) : null;
+
+            // Determine whether they filled the weekly progress for the assigned week.
+            const assignedWeekEntry = entries.find((e) => e.week === p.week) || null;
+            const assignedWeekDate = assignedWeekEntry ? parseDate(assignedWeekEntry.entry_date) : null;
+            const daysSinceWeekEntry = assignedWeekDate ? daysSince(assignedWeekDate) : null;
+            const submittedThisWeek = !!assignedWeekEntry;
+
             const trend = getTrend(entries);
-            const status = getStatus(submittedThisWeek, days, trend);
+            const status = getStatus(submittedThisWeek, daysSinceWeekEntry, daysSinceLast, trend);
 
             return {
               id: p.id,
@@ -146,7 +169,7 @@ export default function Stebesena() {
               severity: SEVERITY_BY_NAME[p.name] || 'Medium',
               lastProgressDate: latest?.entry_date || null,
               submittedThisWeek,
-              daysSinceLast: days,
+              daysSinceLast,
               trend,
               status,
             };
@@ -170,7 +193,7 @@ export default function Stebesena() {
 
   const summary = useMemo(() => {
     const total = rows.length;
-    const overdue = rows.filter((r) => r.daysSinceLast === null || r.daysSinceLast > 7).length;
+    const overdue = rows.filter((r) => !r.submittedThisWeek && (r.daysSinceLast === null || r.daysSinceLast > 7)).length;
     const worsening = rows.filter((r) => r.trend === 'worsening').length;
     const onTrack = rows.filter((r) => r.status === 'green').length;
     return { total, overdue, worsening, onTrack };
@@ -251,7 +274,7 @@ export default function Stebesena() {
                       Severity: {row.severity}
                     </span>
                     <span className="text-xs px-2 py-1 rounded-full border border-[#E8E5E0] text-[#2D3436]">
-                      {row.submittedThisWeek ? 'Užpildyta laiku' : 'Neužpildyta laiku'}
+                      {row.submittedThisWeek ? 'Užpildyta šiai savaitei' : 'Neužpildyta šiai savaitei'}
                     </span>
                     <span className="text-xs px-2 py-1 rounded-full border border-[#E8E5E0] text-[#2D3436]">
                       {row.daysSinceLast === null ? 'Nėra įrašo' : `${row.daysSinceLast} d. nuo paskutinio`}
