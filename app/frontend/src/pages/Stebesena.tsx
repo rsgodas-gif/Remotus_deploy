@@ -110,7 +110,8 @@ export default function Stebesena() {
       try {
         const [patientsRes, progressRes] = await Promise.all([
           fetch(`/api/v1/entities/patients?sort=name&limit=2000`).then((r) => r.json()),
-          fetch(`/api/v1/entities/weekly_progress?sort=-entry_date&limit=5000`).then((r) => r.json()),
+          // Backend pagination validates limit (<= 2000). Keep within bounds.
+          fetch(`/api/v1/entities/weekly_progress?sort=-entry_date&limit=2000`).then((r) => r.json()),
         ]);
 
         const patients = ((patientsRes as any).items || []) as Patient[];
