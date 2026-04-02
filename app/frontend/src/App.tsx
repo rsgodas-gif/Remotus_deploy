@@ -16,6 +16,7 @@ import AccessDenied from './pages/AccessDenied';
 import AuthCallback from './pages/AuthCallback';
 import NotFound from './pages/NotFound';
 import Stebesena from './pages/Stebesena';
+import Pradzia from './pages/Pradzia';
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const AppRoutes = () => {
       />
       <Route path="/prieiga-neleidziama" element={<AccessDenied />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/pradzia" element={<Pradzia />} />
 
       {/* Protected routes */}
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
