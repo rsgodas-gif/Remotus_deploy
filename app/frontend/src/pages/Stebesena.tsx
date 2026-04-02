@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowDown, ArrowRight, ArrowUp, AlertTriangle, CheckCircle2, Clock3, Users } from 'lucide-react';
-import { client } from '../lib/api';
+import { getAPIBaseURL } from '../lib/config';
 
 type Severity = 'Low' | 'Medium' | 'High';
 type Trend = 'improving' | 'stable' | 'worsening';
@@ -116,21 +116,14 @@ export default function Stebesena() {
       setLoading(true);
       setError('');
       try {
+        const apiBase = getAPIBaseURL();
         const [patientsRes, progressRes] = await Promise.all([
-          client.entities.patients.query({
-            query: {},
-            sort: 'name',
-            limit: 2000,
-          }),
-          client.entities.weekly_progress.query({
-            query: {},
-            sort: '-entry_date',
-            limit: 5000,
-          }),
+          fetch(`${apiBase}/api/v1/entities/patients?sort=name&limit=2000`).then((r) => r.json()),
+          fetch(`${apiBase}/api/v1/entities/weekly_progress?sort=-entry_date&limit=5000`).then((r) => r.json()),
         ]);
 
-        const patients = ((patientsRes.data as any).items || []) as Patient[];
-        const progress = ((progressRes.data as any).items || []) as WeeklyProgress[];
+        const patients = ((patientsRes as any).items || []) as Patient[];
+        const progress = ((progressRes as any).items || []) as WeeklyProgress[];
 
         const progressByPatient = new Map<number, WeeklyProgress[]>();
         for (const item of progress) {
