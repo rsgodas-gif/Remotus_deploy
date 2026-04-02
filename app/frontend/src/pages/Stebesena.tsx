@@ -83,24 +83,16 @@ function getTrend(entries: WeeklyProgress[]): Trend {
 
 function getStatus(
   submittedThisWeek: boolean,
-  daysSinceWeekEntry: number | null,
   daysSinceLast: number | null,
   trend: Trend
 ): Status {
   // Simple deterministic rules:
-  // - Red: no submission for assigned week OR worsening trend OR last submission is very old
-  // - Yellow: assigned-week submitted but symptoms unchanged (stable) OR near-overdue
-  // - Green: assigned-week submitted and symptoms improving
-  if (!submittedThisWeek) {
-    if (daysSinceLast === null || daysSinceLast > 7) return 'red';
-    return 'yellow';
-  }
-
+  // - Red: no recent submission (or very old) OR worsening trend
+  // - Yellow: stable symptoms but recent submission (or not improving)
+  // - Green: improving trend AND recent submission
   if (trend === 'worsening') return 'red';
-  if (trend === 'stable') return 'yellow';
-
-  // improving: require on-time-ish freshness for the assigned-week entry
-  if (daysSinceWeekEntry !== null && daysSinceWeekEntry <= 7) return 'green';
+  if (daysSinceLast === null || daysSinceLast > 7) return 'red';
+  if (trend === 'improving' && submittedThisWeek) return 'green';
   return 'yellow';
 }
 
@@ -144,14 +136,13 @@ export default function Stebesena() {
             const latestDate = latest ? parseDate(latest.entry_date) : null;
             const daysSinceLast = latestDate ? daysSince(latestDate) : null;
 
-            // Determine whether they filled the weekly progress for the assigned week.
-            const assignedWeekEntry = entries.find((e) => e.week === p.week) || null;
-            const assignedWeekDate = assignedWeekEntry ? parseDate(assignedWeekEntry.entry_date) : null;
-            const daysSinceWeekEntry = assignedWeekDate ? daysSince(assignedWeekDate) : null;
-            const submittedThisWeek = !!assignedWeekEntry;
+            // "Šią savaitę" is based on submission recency (last entry within last 7 days),
+            // not on matching weekly_progress.week to patient.assigned week.
+            // This avoids false negatives when the UI and stored week numbers drift.
+            const submittedThisWeek = daysSinceLast !== null && daysSinceLast <= 7;
 
             const trend = getTrend(entries);
-            const status = getStatus(submittedThisWeek, daysSinceWeekEntry, daysSinceLast, trend);
+            const status = getStatus(submittedThisWeek, daysSinceLast, trend);
 
             return {
               id: p.id,
@@ -184,7 +175,7 @@ export default function Stebesena() {
 
   const summary = useMemo(() => {
     const total = rows.length;
-    const overdue = rows.filter((r) => !r.submittedThisWeek && (r.daysSinceLast === null || r.daysSinceLast > 7)).length;
+    const overdue = rows.filter((r) => !r.submittedThisWeek).length;
     const worsening = rows.filter((r) => r.trend === 'worsening').length;
     const onTrack = rows.filter((r) => r.status === 'green').length;
     return { total, overdue, worsening, onTrack };
