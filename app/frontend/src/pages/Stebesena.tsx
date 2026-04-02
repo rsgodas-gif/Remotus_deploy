@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowDown, ArrowRight, ArrowUp, AlertTriangle, CheckCircle2, Clock3, Users } from 'lucide-react';
-import { getAPIBaseURL } from '../lib/config';
 
 type Severity = 'Low' | 'Medium' | 'High';
 type Trend = 'improving' | 'stable' | 'worsening';
@@ -116,10 +115,9 @@ export default function Stebesena() {
       setLoading(true);
       setError('');
       try {
-        const apiBase = getAPIBaseURL();
         const [patientsRes, progressRes] = await Promise.all([
-          fetch(`${apiBase}/api/v1/entities/patients?sort=name&limit=2000`).then((r) => r.json()),
-          fetch(`${apiBase}/api/v1/entities/weekly_progress?sort=-entry_date&limit=5000`).then((r) => r.json()),
+          fetch(`/api/v1/entities/patients?sort=name&limit=2000`).then((r) => r.json()),
+          fetch(`/api/v1/entities/weekly_progress?sort=-entry_date&limit=5000`).then((r) => r.json()),
         ]);
 
         const patients = ((patientsRes as any).items || []) as Patient[];
