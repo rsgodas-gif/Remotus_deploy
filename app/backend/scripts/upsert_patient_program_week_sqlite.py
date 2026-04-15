@@ -26,8 +26,10 @@ ENV_DB_VAR = "REMOTUS_SQLITE_DB"
 
 # Unicode en dash — must match DB value exactly
 DEFAULT_PATRICIJA_PROGRAM = "Personalizuota – Patricija J."
+DEFAULT_ALINA_PROGRAM = "Be skausmo 14"
 
 PATRICIJA_PROBLEM_W2 = "Krūtininės dalies mobilumo stoka ir mentės stabilumo sutrikimas"
+ALINA_PROBLEM_W3 = "Disko išvarža su radikulopatija (pagerėjimas po paūmėjimo, tęsti atsargią progresiją)"
 
 # Order matches Exercise_Library.md descriptions + YouTube links; exercise_order 1..12
 PATRICIJA_WEEK2_ROWS: List[Tuple[str, str, int, str, str, str, str]] = [
@@ -142,6 +144,137 @@ PATRICIJA_WEEK2_ROWS: List[Tuple[str, str, int, str, str, str, str]] = [
     ),
 ]
 
+# Week 3 progression: keep symptoms calm, increase variety/volume gently, avoid aggressive loading.
+ALINA_WEEK3_ROWS: List[Tuple[str, str, int, str, str, str, str]] = [
+    # (group, emoji, group_order, exercise_name, time_reps, video_link, short_instruction)
+    (
+        "Apšilimas",
+        "🔥",
+        1,
+        "Diafragminis kvėpavimas",
+        "1x2 min",
+        "https://youtu.be/HFDZE6wJMzA?si=XeK0MxjBVczetyxQ",
+        "Ramus kvėpavimas, atpalaiduoti įtampą, vengti skausmo provokacijos.",
+    ),
+    (
+        "Apšilimas",
+        "🔥",
+        1,
+        "Dubens pasverimai",
+        "2x10",
+        "https://youtu.be/HzpGk0oEgO4?si=7aqmgRvcTN-mNKYO",
+        "Lėtas tempas, mažas judesys, be simptomų plitimo.",
+    ),
+    (
+        "Apšilimas",
+        "🔥",
+        1,
+        "Kelio pritraukimas gulint",
+        "2x6 kiekvienai pusei",
+        "https://youtu.be/A7cXVvu80Yc?si=VFzvUf8VLYRLkLTb",
+        "Švelniai, be stipraus tempimo, tik toleruojamame diapazone.",
+    ),
+    (
+        "Apšilimas",
+        "🔥",
+        1,
+        "Kelių permetimas gulint",
+        "2x6 kiekvienai pusei",
+        "https://youtu.be/gDJsRwBLYKQ?si=5quCGUeoVlFG43Pz",
+        "Labai mažas judesio diapazonas, tik jei neblogina simptomų.",
+    ),
+    (
+        "Stabilizacija",
+        "🎯",
+        2,
+        "Pilvo įtempimas",
+        "3x10",
+        "https://youtu.be/l0XEsRjC5Gg?si=l14heGE1XAe0NYZr",
+        "Išlaikyti kontrolę, kvėpuoti ramiai, vengti kompensacijų.",
+    ),
+    (
+        "Stabilizacija",
+        "🎯",
+        2,
+        "Kulnies stumimas gulint",
+        "3x10 kiekvienai pusei",
+        "https://youtu.be/BiNcavDZRas?si=0FGXQVuGZ6-xEH5L",
+        "Lėtas spaudimas, stabilus dubuo, be skausmo didėjimo.",
+    ),
+    (
+        "Stabilizacija",
+        "🎯",
+        2,
+        "Žingsniavimas gulint",
+        "3x8 kiekvienai pusei",
+        "https://youtu.be/BSGmyJStYUQ?si=wlcY3G1MWZeNK9kz",
+        "Lėtai ir kontroliuotai, nekelti per aukštai, stop jei simptomai plinta.",
+    ),
+    (
+        "Judesys / Kontrolė",
+        "🧭",
+        3,
+        "Knyga atsigulus",
+        "3x12 kiekvienai pusei",
+        "https://youtu.be/TAgK18sd0YM?si=p24l_-y530mrpOsU",
+        "Judesys iš klubo, ne iš juosmens; kontrolė svarbiau už amplitudę.",
+    ),
+    (
+        "Judesys / Kontrolė",
+        "🧭",
+        3,
+        "Keturių taškų siūbavimas",
+        "2x2 min",
+        "https://youtu.be/PN6fR5y5sYE?si=jq-0kknhFnwT5U-h",
+        "Švelnus siūbavimas tik toleruojamame diapazone, be simptomų plitimo.",
+    ),
+    (
+        "Judesys / Kontrolė",
+        "🧭",
+        3,
+        "Kojos tiesimas atgal keturių taškų padėtyje",
+        "3x6 kiekvienai pusei (2–3 s išlaikymas)",
+        "https://youtu.be/pnb6rNdAdhs",
+        "Trumpas išlaikymas, stabilus dubuo, maža amplitudė, be juosmens persitempimo.",
+    ),
+    (
+        "Dekompresija",
+        "🧘",
+        4,
+        "Vaiko poza",
+        "2x30–45 s",
+        "https://youtu.be/_IDUZZ6uFdU?si=8UZtT-ixIHNsDbC1",
+        "Tik jei malonu ir mažina įtampą, neiti į skausmą.",
+    ),
+    (
+        "Dekompresija",
+        "🧘",
+        4,
+        "4 figūros tempimas",
+        "2x20–30 s kiekvienai pusei",
+        "https://youtu.be/c6Ff_y5Npmc?si=wwRuOXIJ2SWkIJ5r",
+        "Švelniai, be agresyvaus tempimo.",
+    ),
+    (
+        "Dekompresija",
+        "🧘",
+        4,
+        "Sėdimo nervo tempimas",
+        "2x6 kiekvienai pusei",
+        "https://youtu.be/FHOLzm185Nc?si=xdcUgLHr81mblzM6",
+        "Labai švelniai: nervo glidas, ne stiprus tempimas; stop jei didėja deginimas ar plitimas.",
+    ),
+    (
+        "Dekompresija",
+        "🧘",
+        4,
+        "Šoninė dekompresija",
+        "1–2x30 s kiekvienai pusei",
+        "https://youtu.be/r0_FcAtuTpo?si=eit0q1SMPLaf1NOp",
+        "Pasirenkamas pratimas, naudoti tik jei subjektyviai palengvina simptomus.",
+    ),
+]
+
 INSERT_SQL = """
 INSERT INTO programs (
     program_name, week,
@@ -216,6 +349,11 @@ def main() -> int:
         help="Use hardcoded Patricija week 2 exercise payload and defaults (alias patricija.j, program name, week 2, problem text)",
     )
     parser.add_argument(
+        "--alina-week3",
+        action="store_true",
+        help="Use hardcoded Alina week 3 payload and defaults (alias alina.g, program Be skausmo 14, week 3, cautious progression text)",
+    )
+    parser.add_argument(
         "--backup-dir",
         default=".",
         help="Directory for JSON backup before writes (ignored on --dry-run)",
@@ -263,17 +401,28 @@ def main() -> int:
             conn.close()
         return 0
 
+    abort_if_exists = False
     if args.patricija_week2:
         args.login_alias = args.login_alias or "patricija.j"
         args.program_name = args.program_name or DEFAULT_PATRICIJA_PROGRAM
         args.week = 2 if args.week is None else args.week
         args.problem_situation = args.problem_situation or PATRICIJA_PROBLEM_W2
         exercises = PATRICIJA_WEEK2_ROWS
+    elif args.alina_week3:
+        args.login_alias = args.login_alias or "alina.g"
+        args.program_name = args.program_name or DEFAULT_ALINA_PROGRAM
+        args.week = 3 if args.week is None else args.week
+        args.problem_situation = args.problem_situation or ALINA_PROBLEM_W3
+        exercises = ALINA_WEEK3_ROWS
+        abort_if_exists = True
     else:
         exercises = []
         if args.week is None or not args.login_alias or not args.program_name or args.problem_situation is None:
-            print("Without --patricija-week2, you must pass --login-alias, --program-name, --week, --problem-situation", file=sys.stderr)
-            print("and implement custom exercise payload in script for non-Patricija runs.", file=sys.stderr)
+            print(
+                "Without --patricija-week2 or --alina-week3, you must pass --login-alias, --program-name, --week, --problem-situation",
+                file=sys.stderr,
+            )
+            print("and implement custom exercise payload in script for custom runs.", file=sys.stderr)
             return 2
 
     if args.week is None or not args.login_alias or not args.program_name or args.problem_situation is None:
@@ -281,7 +430,7 @@ def main() -> int:
         return 2
 
     if not exercises:
-        print("No exercise payload. Use --patricija-week2.", file=sys.stderr)
+        print("No exercise payload. Use --patricija-week2 or --alina-week3.", file=sys.stderr)
         return 2
     if not db_path_p.exists():
         print(f"Database file not found: {db_path_p}", file=sys.stderr)
@@ -323,6 +472,10 @@ def main() -> int:
         print(f"\nExisting row count (programs for this name+week): {existing_count}")
         print("--- Existing rows (full) ---")
         print(json.dumps(existing, ensure_ascii=False, indent=2))
+        if abort_if_exists and existing_count > 0:
+            print("\n[SAFE STOP] Target week already exists. No changes applied.")
+            print("Use --verify-only to inspect rows and avoid accidental overwrite.")
+            return 0
 
         insert_rows = build_insert_rows(args.program_name, args.week, exercises)
         insert_count = len(insert_rows)
