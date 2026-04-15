@@ -26,7 +26,7 @@ ENV_DB_VAR = "REMOTUS_SQLITE_DB"
 
 # Unicode en dash — must match DB value exactly
 DEFAULT_PATRICIJA_PROGRAM = "Personalizuota – Patricija J."
-DEFAULT_ALINA_PROGRAM = "Be skausmo 14"
+DEFAULT_ALINA_PROGRAM = "Personalizuota – Alina G."
 
 PATRICIJA_PROBLEM_W2 = "Krūtininės dalies mobilumo stoka ir mentės stabilumo sutrikimas"
 ALINA_PROBLEM_W3 = "Disko išvarža su radikulopatija (pagerėjimas po paūmėjimo, tęsti atsargią progresiją)"
