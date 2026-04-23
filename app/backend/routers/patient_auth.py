@@ -15,7 +15,7 @@ from models.weekly_progress import Weekly_progress
 
 logger = logging.getLogger(__name__)
 
-BE_SKAUSMO_14_PROGRAM = "Be skausmo 14"
+BE_SKAUSMO_10_PROGRAM = "Be skausmo-10"
 PRADZIA_PLACEHOLDER_PHONE = "—"
 
 router = APIRouter(prefix="/api/v1/auth", tags=["patient-auth"])
@@ -156,7 +156,7 @@ async def pradzia_complete(
             patient.login_alias = login_alias
             if full_name and full_name not in {"Nenurodyta -", "Nenurodyta"}:
                 patient.name = full_name
-            patient.assigned_program = BE_SKAUSMO_14_PROGRAM
+            patient.assigned_program = BE_SKAUSMO_10_PROGRAM
             patient.week = 1
             patient.access_allowed = True
             if not (patient.phone or "").strip():
@@ -168,7 +168,7 @@ async def pradzia_complete(
                 name=full_name,
                 email=email_norm,
                 phone=PRADZIA_PLACEHOLDER_PHONE,
-                assigned_program=BE_SKAUSMO_14_PROGRAM,
+                assigned_program=BE_SKAUSMO_10_PROGRAM,
                 week=1,
                 access_allowed=True,
                 login_alias=login_alias,
