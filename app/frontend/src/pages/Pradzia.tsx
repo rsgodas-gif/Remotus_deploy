@@ -125,30 +125,31 @@ export default function Pradzia() {
   const navigate = useNavigate();
   const { login } = usePatient();
   const [painBefore, setPainBefore] = useState<number | null>(null);
-  const [phaseDone, setPhaseDone] = useState(false);
-  const [painAfter, setPainAfter] = useState<number | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [activationDone, setActivationDone] = useState(false);
   const [email, setEmail] = useState('');
+  const [loginAlias, setLoginAlias] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const completionRef = useRef<HTMLDivElement>(null);
+  const routineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (phaseDone && completionRef.current) {
-      completionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (activationDone && routineRef.current) {
+      routineRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [phaseDone]);
+  }, [activationDone]);
 
   const handleForm = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError('');
-    if (painBefore === null || painAfter === null) return;
-    const fn = firstName.trim();
-    const ln = lastName.trim();
+    if (painBefore === null) return;
     const em = email.trim();
-    if (!fn || !ln) {
-      setSubmitError('Užpildykite vardą ir pavardę.');
+    const alias = loginAlias.trim().toLowerCase();
+    if (!alias) {
+      setSubmitError('Įveskite prisijungimo vardą.');
+      return;
+    }
+    if (!/^[a-z0-9._-]{3,40}$/.test(alias)) {
+      setSubmitError('Prisijungimo vardas turi būti 3–40 simbolių (a-z, 0-9, ., _, -).');
       return;
     }
     if (!emailOk(em)) {
@@ -161,11 +162,11 @@ export default function Pradzia() {
         url: '/api/v1/auth/pradzia-complete',
         method: 'POST',
         data: {
-          first_name: fn,
-          last_name: ln,
+          first_name: 'Nenurodyta',
+          last_name: '-',
           email: em,
+          login_alias: alias,
           pain_before: painBefore,
-          pain_after: painAfter,
         },
       });
       const patient = response.data;
@@ -175,7 +176,7 @@ export default function Pradzia() {
         return;
       }
       login(patient);
-      navigate('/pratimai');
+      setActivationDone(true);
     } catch (err: unknown) {
       const detail =
         (err as { data?: { detail?: string } })?.data?.detail ||
@@ -188,123 +189,87 @@ export default function Pradzia() {
     }
   };
 
-  const reliefMessage =
-    painAfter !== null && painBefore !== null && painAfter < painBefore
-      ? 'Jei jaučiate palengvėjimą – tai geras ženklas. Jūsų kūnas reaguoja į tinkamą judėjimą, todėl efektas gali ateiti greičiau.'
-      : painAfter !== null && painBefore !== null
-        ? 'Jei pokytis nedidelis – neišsigąskite, tai normalu. Ryškesnis pagerėjimas dažnai atsiranda per kelias dienas nuoseklaus judėjimo.'
-        : null;
-
   return (
     <div className="min-h-screen bg-[#FAFAF8] px-4 py-8 pb-16" style={{ fontFamily: 'Inter, sans-serif' }}>
       <div className="max-w-lg mx-auto space-y-10">
-        <header className="text-center space-y-3">
+        <header className="text-center space-y-4">
           <h1 className="text-2xl font-bold text-[#2D3436] leading-tight">
-            Sveiki atvykę į Be skausmo per 14 dienų
+            Sveiki atvykę į Be skausmo per 10 dienų
           </h1>
-          <p className="text-[#636E72] text-base leading-relaxed">
-            Pradedame nuo trumpos 5–7 min mankštos. Daugelis pirmą palengvėjimą pajunta jau po pirmos rutinos.
-          </p>
-          <p className="text-[#2D3436] font-medium text-base pt-2">
-            Prieš pradėdami įvertinkite skausmą balais nuo 1 iki 10.
-          </p>
-          <PainScale value={painBefore} onChange={setPainBefore} />
+          <form onSubmit={handleForm} className="space-y-4 bg-white border border-[#E8E5E0] rounded-2xl p-5 shadow-sm text-left">
+            <p className="text-[#2D3436] font-medium text-sm">Pradžiai sukurkite prisijungimą:</p>
+            <div>
+              <label className="block text-xs font-medium text-[#636E72] mb-1">El. paštas</label>
+              <input
+                required
+                type="email"
+                className="w-full rounded-xl border border-[#E8E5E0] px-3 py-2.5 text-[#2D3436]"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                placeholder="pvz. vardas@gmail.com"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[#636E72] mb-1">Prisijungimo vardas</label>
+              <input
+                required
+                className="w-full rounded-xl border border-[#E8E5E0] px-3 py-2.5 text-[#2D3436]"
+                value={loginAlias}
+                onChange={(e) => setLoginAlias(e.target.value)}
+                autoComplete="username"
+                placeholder="pvz. alina.g"
+              />
+            </div>
+            <p className="text-[#2D3436] font-medium text-sm pt-1">
+              Prieš pradedami įvertinkite balą nuo 1-10.
+            </p>
+            <PainScale value={painBefore} onChange={setPainBefore} />
+            {submitError && <p className="text-sm text-red-600">{submitError}</p>}
+            <button
+              type="submit"
+              disabled={submitting || painBefore === null}
+              className="w-full py-3.5 rounded-xl font-semibold text-white bg-[#5B8A72] disabled:opacity-45 flex items-center justify-center gap-2"
+            >
+              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+              Tęsti
+            </button>
+          </form>
         </header>
 
-        <section className="space-y-4">
-          <h2 className="text-xl font-bold text-[#2D3436]">Greita pradžios rutina</h2>
-          <p className="text-[#636E72] text-sm leading-relaxed">
-            Atlikite pratimus iš eilės. Neskubėkite. Tikslas – sumažinti sustingimą ir skausmą po ilgo sėdėjimo.
-          </p>
-          <ol className="space-y-5 list-none p-0 m-0">
-            {RUTINA_EXERCISES.map((ex, i) => (
-              <li key={ex.title} className="bg-white rounded-2xl p-4 border border-[#E8E5E0] shadow-sm">
-                <div className="flex gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#5B8A72]/15 text-[#5B8A72] font-bold text-sm flex items-center justify-center">
-                    {i + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#2D3436] text-base">{ex.title}</h3>
-                    <p className="text-sm text-[#5B8A72] font-medium mt-1">⏱ {ex.dose}</p>
-                    <RoutineVideoBlock videoUrl={ex.videoUrl} />
+        {activationDone && (
+          <section ref={routineRef} className="space-y-4">
+            <p className="text-[#2D3436] text-base font-semibold leading-relaxed">
+              Pradedame nuo trumpos 5 minučių mankštos sumažinti skausmą čia ir dabar!
+            </p>
+            <h2 className="text-xl font-bold text-[#2D3436]">Greita pradžios rutina</h2>
+            <p className="text-[#636E72] text-sm leading-relaxed">
+              Atlikite pratimus iš eilės. Neskubėkite. Tikslas – sumažinti sustingimą ir skausmą po ilgo sėdėjimo.
+            </p>
+            <ol className="space-y-5 list-none p-0 m-0">
+              {RUTINA_EXERCISES.map((ex, i) => (
+                <li key={ex.title} className="bg-white rounded-2xl p-4 border border-[#E8E5E0] shadow-sm">
+                  <div className="flex gap-3">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#5B8A72]/15 text-[#5B8A72] font-bold text-sm flex items-center justify-center">
+                      {i + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-[#2D3436] text-base">{ex.title}</h3>
+                      <p className="text-sm text-[#5B8A72] font-medium mt-1">⏱ {ex.dose}</p>
+                      <RoutineVideoBlock videoUrl={ex.videoUrl} />
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <button
-            type="button"
-            disabled={painBefore === null}
-            onClick={() => setPhaseDone(true)}
-            className="w-full py-4 rounded-2xl font-semibold text-lg text-white bg-[#5B8A72] shadow-sm disabled:opacity-45 disabled:cursor-not-allowed active:scale-[0.99] transition-transform"
-          >
-            Baigiau pratimus
-          </button>
-        </section>
-
-        {phaseDone && (
-          <div ref={completionRef} className="space-y-6 pt-2 border-t border-[#E8E5E0]">
-            <div className="text-center space-y-3">
-              <h2 className="text-xl font-bold text-[#2D3436]">Sveikiname pabaigus</h2>
-              <p className="text-[#636E72] text-base leading-relaxed">
-                Panašiu principu mažinsime jūsų skausmą ir ateinančiomis dienomis.
-              </p>
-              <p className="text-[#2D3436] font-medium">
-                Dabar dar kartą įvertinkite skausmą balais nuo 1 iki 10.
-              </p>
-              <PainScale value={painAfter} onChange={setPainAfter} />
-            </div>
-
-            {reliefMessage && (
-              <p className="text-[#2D3436] text-base leading-relaxed bg-white border border-[#E8E5E0] rounded-2xl p-4">
-                {reliefMessage}
-              </p>
-            )}
-
-            <form onSubmit={handleForm} className="space-y-4 bg-white border border-[#E8E5E0] rounded-2xl p-5 shadow-sm">
-              <p className="text-sm font-medium text-[#2D3436]">Kad galėtumėte tęsti programą</p>
-              <div>
-                <label className="block text-xs font-medium text-[#636E72] mb-1">Vardas</label>
-                <input
-                  required
-                  className="w-full rounded-xl border border-[#E8E5E0] px-3 py-2.5 text-[#2D3436]"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  autoComplete="given-name"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#636E72] mb-1">Pavardė</label>
-                <input
-                  required
-                  className="w-full rounded-xl border border-[#E8E5E0] px-3 py-2.5 text-[#2D3436]"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  autoComplete="family-name"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#636E72] mb-1">El. paštas</label>
-                <input
-                  required
-                  type="email"
-                  className="w-full rounded-xl border border-[#E8E5E0] px-3 py-2.5 text-[#2D3436]"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                />
-              </div>
-              {submitError && <p className="text-sm text-red-600">{submitError}</p>}
-              <button
-                type="submit"
-                disabled={submitting || painAfter === null}
-                className="w-full py-3.5 rounded-xl font-semibold text-white bg-[#5B8A72] disabled:opacity-45 flex items-center justify-center gap-2"
-              >
-                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                Tęsti į programą
-              </button>
-            </form>
-          </div>
+                </li>
+              ))}
+            </ol>
+            <button
+              type="button"
+              onClick={() => navigate('/pratimai')}
+              className="w-full py-4 rounded-2xl font-semibold text-lg text-white bg-[#5B8A72] shadow-sm active:scale-[0.99] transition-transform"
+            >
+              Tęsti į programą
+            </button>
+          </section>
         )}
       </div>
     </div>

@@ -83,11 +83,12 @@ async def patient_login(
 class PradziaCompleteRequest(BaseModel):
     """POST /pradzia form: creates/updates patient, logs them in via returned session payload."""
 
-    first_name: str = Field(..., min_length=1, max_length=120)
-    last_name: str = Field(..., min_length=1, max_length=120)
+    first_name: str = Field(default="Nenurodyta", min_length=1, max_length=120)
+    last_name: str = Field(default="-", min_length=1, max_length=120)
     email: str = Field(..., min_length=3, max_length=254)
+    login_alias: str = Field(..., min_length=3, max_length=40)
     pain_before: int = Field(..., ge=1, le=10)
-    pain_after: int = Field(..., ge=1, le=10)
+    pain_after: Optional[int] = Field(default=None, ge=1, le=10)
 
     @field_validator("first_name", "last_name")
     @classmethod
@@ -104,6 +105,14 @@ class PradziaCompleteRequest(BaseModel):
         if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", s):
             raise ValueError("Neteisingas el. paštas")
         return s
+
+    @field_validator("login_alias")
+    @classmethod
+    def normalize_login_alias(cls, v: str) -> str:
+        s = re.sub(r"[^a-z0-9._-]", "", (v or "").strip().lower())
+        if len(s) < 3:
+            raise ValueError("Prisijungimo vardas per trumpas")
+        return s[:40]
 
 
 async def _unique_login_alias(db: AsyncSession, base: str, exclude_patient_id: Optional[int]) -> str:
@@ -127,27 +136,34 @@ async def pradzia_complete(
 ):
     """Upsert patient by email after /pradzia onboarding; returns same shape as patient-login for session storage."""
     email_norm = str(data.email).strip().lower()
+    pain_after = data.pain_after if data.pain_after is not None else data.pain_before
+    login_alias = data.login_alias.strip().lower()
     full_name = f"{data.first_name} {data.last_name}".strip()
 
     try:
+        alias_q = select(Patients).where(func.lower(Patients.login_alias) == login_alias)
+        alias_res = await db.execute(alias_q)
+        alias_owner = alias_res.scalar_one_or_none()
+
         q = select(Patients).where(func.lower(Patients.email) == email_norm)
         res = await db.execute(q)
         patient = res.scalar_one_or_none()
 
         if patient:
+            if alias_owner is not None and alias_owner.id != patient.id:
+                raise HTTPException(status_code=409, detail="Toks prisijungimo vardas jau naudojamas")
             patient.email = email_norm
-            patient.name = full_name
+            patient.login_alias = login_alias
+            if full_name and full_name not in {"Nenurodyta -", "Nenurodyta"}:
+                patient.name = full_name
             patient.assigned_program = BE_SKAUSMO_14_PROGRAM
             patient.week = 1
             patient.access_allowed = True
             if not (patient.phone or "").strip():
                 patient.phone = PRADZIA_PLACEHOLDER_PHONE
-            if not (patient.login_alias or "").strip():
-                local = email_norm.split("@", 1)[0]
-                patient.login_alias = await _unique_login_alias(db, local, patient.id)
         else:
-            local = email_norm.split("@", 1)[0]
-            alias = await _unique_login_alias(db, local, None)
+            if alias_owner is not None:
+                raise HTTPException(status_code=409, detail="Toks prisijungimo vardas jau naudojamas")
             patient = Patients(
                 name=full_name,
                 email=email_norm,
@@ -155,7 +171,7 @@ async def pradzia_complete(
                 assigned_program=BE_SKAUSMO_14_PROGRAM,
                 week=1,
                 access_allowed=True,
-                login_alias=alias,
+                login_alias=login_alias,
                 problem_situation="",
             )
             db.add(patient)
@@ -168,7 +184,7 @@ async def pradzia_complete(
                 first_name=data.first_name,
                 last_name=data.last_name,
                 pain_before=data.pain_before,
-                pain_after=data.pain_after,
+                pain_after=pain_after,
                 source="pradzia",
                 routine_completed=True,
             )
@@ -183,7 +199,7 @@ async def pradzia_complete(
                 Weekly_progress(
                     patient_id=patient.id,
                     week=1,
-                    pain_avg=data.pain_after,
+                    pain_avg=pain_after,
                     pain_spread="",
                     movement=5,
                     energy=5,
