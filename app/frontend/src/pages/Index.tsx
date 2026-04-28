@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Heart, Dumbbell, Apple, Sun, AlertCircle, BarChart3, PlayCircle, LogOut, User } from 'lucide-react';
+import { Heart, Dumbbell, Apple, Sun, AlertCircle, BarChart3, PlayCircle, LogOut, User, MessageSquareText } from 'lucide-react';
 import { usePatient } from '../contexts/PatientContext';
 
 const HERO_IMAGE = 'https://mgx-backend-cdn.metadl.com/generate/images/1015757/2026-03-10/87f7ae28-be33-4933-b4f5-bea8209191f2.png';
@@ -47,6 +47,11 @@ function NavCard({ title, description, icon, path, accent = '#5B8A72', priority 
 
 export default function HomePage() {
   const { patient, logout } = usePatient();
+  const isBeSkausmo10 = patient?.assigned_program === 'Be skausmo-10';
+  const displayName =
+    patient?.name && !patient.name.toLowerCase().includes('nenurodyta')
+      ? patient.name
+      : patient?.login_alias || patient?.email || 'Pacientas';
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -70,9 +75,11 @@ export default function HomePage() {
                 <User className="w-5 h-5 text-[#5B8A72]" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#2D3436]">{patient?.name}</p>
+                <p className="text-sm font-semibold text-[#2D3436]">{displayName}</p>
                 <p className="text-xs text-[#636E72]">
-                  {patient?.assigned_program} · {patient?.week} savaitė
+                  {isBeSkausmo10
+                    ? patient?.assigned_program
+                    : `${patient?.assigned_program} · ${patient?.week} savaitė`}
                 </p>
               </div>
             </div>
@@ -144,12 +151,21 @@ export default function HomePage() {
             path="/skausmo-paumejimas"
             accent="#E8A87C"
           />
+          {!isBeSkausmo10 && (
+            <NavCard
+              title="Savaitės progresas"
+              description="Savaitinis įsivertinimas"
+              icon={<BarChart3 className="w-7 h-7 text-[#7FB3D3]" />}
+              path="/progresas"
+              accent="#7FB3D3"
+            />
+          )}
           <NavCard
-            title="Savaitės progresas"
-            description="Savaitinis įsivertinimas"
-            icon={<BarChart3 className="w-7 h-7 text-[#7FB3D3]" />}
-            path="/progresas"
-            accent="#7FB3D3"
+            title="Pastabos / komentarai"
+            description="Parašykite, jei turite pasiūlymų"
+            icon={<MessageSquareText className="w-7 h-7 text-[#7A6BC2]" />}
+            path="/pastabos"
+            accent="#7A6BC2"
           />
         </div>
 

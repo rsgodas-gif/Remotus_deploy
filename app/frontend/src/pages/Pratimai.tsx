@@ -284,10 +284,12 @@ function ExerciseDetailModal({
       </div>
 
       <div className="px-4 pt-4 pb-28 space-y-4">
-        <ExerciseVideoPreview
-          videoUrl={exercise.video_link}
-          onOpen={() => exercise.video_link && onOpenVideo(exercise.video_link)}
-        />
+        <div className="md:max-w-xl md:mx-auto">
+          <ExerciseVideoPreview
+            videoUrl={exercise.video_link}
+            onOpen={() => exercise.video_link && onOpenVideo(exercise.video_link)}
+          />
+        </div>
 
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-2xl leading-tight font-bold text-[#1F2527]">{exercise.exercise_name}</h3>
@@ -339,61 +341,28 @@ function ExerciseDetailModal({
   );
 }
 
-function DayExercisesModal({
-  day,
+function DayPainModal({
+  dayNumber,
   painToday,
   daySubmitting,
-  onClose,
-  onOpenExercise,
+  open,
   onSetPainToday,
   onSubmitPain,
 }: {
-  day: ProgramDayState;
+  dayNumber: number;
   painToday: number | null;
   daySubmitting: boolean;
-  onClose: () => void;
-  onOpenExercise: (exercise: DayExercise, index: number, total: number) => void;
+  open: boolean;
   onSetPainToday: (n: number) => void;
   onSubmitPain: (dayNumber: number) => void;
 }) {
+  if (!open) return null;
+
   return (
-    <div className="fixed inset-0 z-[55] bg-[#FAFAF8] overflow-y-auto">
-      <div className="sticky top-0 z-10 bg-[#FAFAF8]/95 backdrop-blur border-b border-[#ECE7DE] px-4 py-3 flex items-center justify-between">
-        <div>
-          <p className="text-sm text-[#636E72]">Dienos pratimai</p>
-          <p className="text-lg font-semibold text-[#2D3436]">Diena {day.day_number}</p>
-        </div>
-        <button type="button" onClick={onClose} className="h-9 w-9 rounded-full bg-white border border-[#E6E2DA] flex items-center justify-center">
-          <X className="w-4 h-4 text-[#2D3436]" />
-        </button>
-      </div>
-
-      <div className="px-4 py-4 pb-10 space-y-3">
-        {day.exercises.map((exercise, idx) => (
-          <button
-            key={exercise.id}
-            type="button"
-            onClick={() => onOpenExercise(exercise, idx, day.exercises.length)}
-            className={`w-full rounded-xl p-3 border text-left transition-colors ${
-              exercise.completed
-                ? 'bg-[#EAF8F0] border-[#5B8A72]'
-                : 'bg-white border-[#E8E5E0]'
-            }`}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-semibold text-[#2D3436] truncate">{exercise.order_index}. {exercise.exercise_name}</p>
-                <p className="text-sm text-[#5B8A72] mt-1">{exercise.sets} x {exercise.reps_or_time}</p>
-              </div>
-              <span className="shrink-0 px-3 py-1 rounded-lg bg-white border border-[#D8DDE1] text-sm font-medium text-[#2D3436]">
-                Atidaryti
-              </span>
-            </div>
-          </button>
-        ))}
-
-        {day.all_exercises_completed && !day.completed && (
-          <div className="bg-[#FAFAF8] border border-[#E8E5E0] rounded-xl p-4">
+    <div className="fixed inset-0 z-[55] bg-black/40 flex items-end sm:items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white border border-[#E8E5E0] rounded-2xl p-4 shadow-xl">
+            <p className="text-base font-semibold text-[#2D3436] mb-1">Diena {dayNumber} užbaigta</p>
+            <p className="text-sm text-[#636E72] mb-3">Įvertinkite šiandienos skausmą prieš pereinant toliau.</p>
             <p className="text-sm font-medium text-[#2D3436] mb-2">Skausmas šiandien</p>
             <div className="grid grid-cols-6 gap-2 mb-3">
               {Array.from({ length: 11 }, (_, n) => (
@@ -409,18 +378,12 @@ function DayExercisesModal({
               ))}
             </div>
             <button
-              onClick={() => onSubmitPain(day.day_number)}
+              onClick={() => onSubmitPain(dayNumber)}
               disabled={painToday === null || daySubmitting}
               className="w-full py-3 rounded-xl bg-[#5B8A72] text-white font-semibold disabled:opacity-50"
             >
               {daySubmitting ? 'Siunčiama...' : 'Pateikti dienos įvertinimą'}
             </button>
-          </div>
-        )}
-
-        {day.completed && day.day_number < 10 && (
-          <p className="text-sm font-medium text-[#5B8A72]">Atrakinta kita diena</p>
-        )}
       </div>
     </div>
   );
@@ -648,9 +611,9 @@ export default function Pratimai() {
   const [painToday, setPainToday] = useState<number | null>(null);
   const [daySubmitting, setDaySubmitting] = useState(false);
   const [celebration, setCelebration] = useState<{ dayNumber: number; message: string } | null>(null);
-  const [selectedDayNumber, setSelectedDayNumber] = useState<number | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<{ dayNumber: number; exercise: DayExercise; totalInDay: number; currentIndex: number } | null>(null);
   const [fullscreenVideoUrl, setFullscreenVideoUrl] = useState<string | null>(null);
+  const [painModalDayNumber, setPainModalDayNumber] = useState<number | null>(null);
   const [showCompletionFeedback, setShowCompletionFeedback] = useState(false);
   const [completionSubmitting, setCompletionSubmitting] = useState(false);
   const [helpingScore, setHelpingScore] = useState('');
@@ -786,6 +749,9 @@ export default function Pratimai() {
         });
       } else {
         setSelectedExercise(null);
+        if (day.all_exercises_completed && !day.completed) {
+          setPainModalDayNumber(dayNumber);
+        }
       }
       return;
     }
@@ -875,6 +841,8 @@ export default function Pratimai() {
       });
       setBeSkausmoState(response.data as BeSkausmoState);
       setPainToday(null);
+      setPainModalDayNumber(null);
+      setSelectedExercise(null);
       setCelebration({
         dayNumber,
         message: getDayMotivation(dayNumber),
@@ -902,11 +870,6 @@ export default function Pratimai() {
     });
     return days;
   }, [beSkausmoState]);
-  const selectedDay = useMemo(
-    () => beSkausmoState?.days.find((d) => d.day_number === selectedDayNumber) ?? null,
-    [beSkausmoState, selectedDayNumber]
-  );
-
   useEffect(() => {
     if (!patient || !beSkausmoState?.program_completed) return;
     const submittedKey = `be_skausmo_10_feedback_submitted_${patient.id}`;
@@ -938,7 +901,9 @@ export default function Pratimai() {
 
         <h1 className="text-2xl font-bold text-[#2D3436] mb-1">Pratimai</h1>
         <p className="text-base text-[#636E72] mb-1">
-          {patient?.assigned_program} {patient?.assigned_program === 'Be skausmo-10' ? '· 10 dienų programa' : `· ${patient?.week} savaitė`}
+          {patient?.assigned_program === 'Be skausmo-10'
+            ? patient?.assigned_program
+            : `${patient?.assigned_program} · ${patient?.week} savaitė`}
         </p>
         <p className="text-sm text-[#636E72] mb-4">
           Atlikite pratimus iš eilės. Vaizdo įrašai rodomi automatiškai prie kiekvieno pratimo.
@@ -993,7 +958,18 @@ export default function Pratimai() {
                   >
                     <button
                       type="button"
-                      onClick={() => !day.locked && setSelectedDayNumber(day.day_number)}
+                      onClick={() => {
+                        if (day.locked || day.exercises.length === 0) return;
+                        const firstIncompleteIndex = day.exercises.findIndex((ex) => !ex.completed);
+                        const targetIndex = firstIncompleteIndex >= 0 ? firstIncompleteIndex : Math.max(day.exercises.length - 1, 0);
+                        const targetExercise = day.exercises[targetIndex];
+                        setSelectedExercise({
+                          dayNumber: day.day_number,
+                          exercise: targetExercise,
+                          totalInDay: day.exercises.length,
+                          currentIndex: targetIndex,
+                        });
+                      }}
                       className="w-full flex items-center justify-between text-left"
                     >
                       <div>
@@ -1089,24 +1065,14 @@ export default function Pratimai() {
           canGoPrevious={selectedExercise.currentIndex > 0}
         />
       )}
-      {selectedDay && (
-        <DayExercisesModal
-          day={selectedDay}
-          painToday={painToday}
-          daySubmitting={daySubmitting}
-          onClose={() => setSelectedDayNumber(null)}
-          onOpenExercise={(exercise, index, total) =>
-            setSelectedExercise({
-              dayNumber: selectedDay.day_number,
-              exercise,
-              totalInDay: total,
-              currentIndex: index,
-            })
-          }
-          onSetPainToday={setPainToday}
-          onSubmitPain={submitDayPain}
-        />
-      )}
+      <DayPainModal
+        dayNumber={painModalDayNumber ?? 0}
+        painToday={painToday}
+        daySubmitting={daySubmitting}
+        open={painModalDayNumber !== null}
+        onSetPainToday={setPainToday}
+        onSubmitPain={submitDayPain}
+      />
       {fullscreenVideoUrl && (
         <VideoFullscreenModal
           videoUrl={fullscreenVideoUrl}
