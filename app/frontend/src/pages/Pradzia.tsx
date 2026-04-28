@@ -32,31 +32,61 @@ const RUTINA_EXERCISES = [
     title: 'Klubo lenkiamųjų tempimas',
     dose: '30–40 sek. kiekvienai pusei',
     videoUrl: 'https://youtu.be/pX4IJXjK7N0',
+    steps: [
+      'Atsiklaupkite viena koja priekyje, kita remkite keliu į grindis.',
+      'Švelniai stumkite klubą į priekį, kol pajusite tempimą kirkšnyje.',
+      'Laikykite tolygų kvėpavimą ir po to pakeiskite pusę.',
+    ],
   },
   {
     title: 'Atversta knyga gulint rankomis',
     dose: '6–8 kartai kiekvienai pusei',
     videoUrl: 'https://youtu.be/cmSa-iSgoEA',
+    steps: [
+      'Atsigulkite ant šono, kelius laikykite sulenktus ir suglaustus.',
+      'Viršutinę ranką veskite atgal atverdami krūtinę į priešingą pusę.',
+      'Grįžkite į pradinę padėtį ir kartokite lėtai.',
+    ],
   },
   {
     title: 'Tiltelis',
     dose: '12 kartų, viršuje palaikant 2 sek.',
     videoUrl: 'https://youtu.be/sUSfRs2nOkY',
+    steps: [
+      'Atsigulkite ant nugaros, kelius sulenkite, pėdos ant grindų.',
+      'Įtempkite sėdmenis ir kelkite dubenį aukštyn iki tiesios linijos.',
+      'Viršuje palaikykite 2 sek., tada lėtai nuleiskite žemyn.',
+    ],
   },
   {
     title: 'Modifikuotas liemens pakėlimas (McGill)',
     dose: '8 kartai kiekvienai pusei, palaikant 5 sek.',
     videoUrl: 'https://youtu.be/zYf4nxrW6dI',
+    steps: [
+      'Atsigulkite ant nugaros, vieną koją sulenkite, kitą laikykite ištiestą.',
+      'Lengvai pakelkite galvą ir pečius, išlaikydami neutralų juosmenį.',
+      'Palaikykite 5 sek. ir lėtai grįžkite į pradinę padėtį.',
+    ],
   },
   {
     title: 'Kojos tiesimas atgal keturių taškų padėtyje',
     dose: '8–10 kartų kiekvienai pusei',
     videoUrl: 'https://youtu.be/pnb6rNdAdhs',
+    steps: [
+      'Atsistokite keturių taškų padėtyje: delnai po pečiais, keliai po klubais.',
+      'Ištieskite vieną koją atgal, išlaikydami stabilų liemenį.',
+      'Grąžinkite koją atgal ir pakartokite kita puse.',
+    ],
   },
   {
     title: 'Svėrimai per juosmenį į sieną (Hip hinge)',
     dose: '10 kartų',
     videoUrl: 'https://youtu.be/YLLlzyJcSvA',
+    steps: [
+      'Atsistokite nugara į sieną per žingsnį, pėdos klubų plotyje.',
+      'Stumkite klubus atgal link sienos, nugarą laikykite neutralią.',
+      'Atsistokite atgal į pradinę padėtį, judesį atlikite kontroliuotai.',
+    ],
   },
 ] as const;
 
@@ -130,6 +160,7 @@ export default function Pradzia() {
   const [loginAlias, setLoginAlias] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [completedExercises, setCompletedExercises] = useState<Record<string, boolean>>({});
   const routineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -189,6 +220,8 @@ export default function Pradzia() {
     }
   };
 
+  const completedCount = RUTINA_EXERCISES.filter((ex) => completedExercises[ex.title]).length;
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] px-4 py-8 pb-16" style={{ fontFamily: 'Inter, sans-serif' }}>
       <div className="max-w-lg mx-auto space-y-10">
@@ -221,6 +254,9 @@ export default function Pradzia() {
                 placeholder="pvz. alina.g"
               />
             </div>
+            <p className="text-xs text-[#636E72] leading-relaxed bg-[#F7F7F5] border border-[#E8E5E0] rounded-xl px-3 py-2.5">
+              Susikūrę prisijungimą, prisijungti visada galėsite per <span className="font-semibold text-[#2D3436]">remotus.fit</span> arba <span className="font-semibold text-[#2D3436]">remotus.lt</span>.
+            </p>
             <p className="text-[#2D3436] font-medium text-sm pt-1">
               Prieš pradedami įvertinkite balą nuo 1-10.
             </p>
@@ -246,6 +282,9 @@ export default function Pradzia() {
             <p className="text-[#636E72] text-sm leading-relaxed">
               Atlikite pratimus iš eilės. Neskubėkite. Tikslas – sumažinti sustingimą ir skausmą po ilgo sėdėjimo.
             </p>
+            <p className="text-xs text-[#636E72]">
+              Pažymėkite atliktus pratimus. Tai neprivaloma, bet padės sekti progresą ({completedCount}/{RUTINA_EXERCISES.length}).
+            </p>
             <ol className="space-y-5 list-none p-0 m-0">
               {RUTINA_EXERCISES.map((ex, i) => (
                 <li key={ex.title} className="bg-white rounded-2xl p-4 border border-[#E8E5E0] shadow-sm">
@@ -256,7 +295,29 @@ export default function Pradzia() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-[#2D3436] text-base">{ex.title}</h3>
                       <p className="text-sm text-[#5B8A72] font-medium mt-1">⏱ {ex.dose}</p>
+                      <div className="mt-3 rounded-xl bg-[#FAFAF8] border border-[#E8E5E0] p-3">
+                        <p className="text-xs font-semibold text-[#2D3436] mb-2">Trumpa instrukcija</p>
+                        <ol className="list-decimal pl-4 space-y-1 text-sm text-[#2D3436]">
+                          {ex.steps.map((step) => (
+                            <li key={step}>{step}</li>
+                          ))}
+                        </ol>
+                      </div>
                       <RoutineVideoBlock videoUrl={ex.videoUrl} />
+                      <label className="mt-3 inline-flex items-center gap-2 text-sm text-[#2D3436] cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-[#C8C8C8]"
+                          checked={Boolean(completedExercises[ex.title])}
+                          onChange={(e) =>
+                            setCompletedExercises((prev) => ({
+                              ...prev,
+                              [ex.title]: e.target.checked,
+                            }))
+                          }
+                        />
+                        Pažymėti kaip atliktą
+                      </label>
                     </div>
                   </div>
                 </li>
@@ -264,10 +325,10 @@ export default function Pradzia() {
             </ol>
             <button
               type="button"
-              onClick={() => navigate('/pratimai')}
+              onClick={() => navigate('/')}
               className="w-full py-4 rounded-2xl font-semibold text-lg text-white bg-[#5B8A72] shadow-sm active:scale-[0.99] transition-transform"
             >
-              Tęsti į programą
+              Tęsti į pagrindinį puslapį
             </button>
           </section>
         )}
