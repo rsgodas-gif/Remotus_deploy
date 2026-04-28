@@ -22,7 +22,7 @@ export function useWeeklyLockContext() {
 
 export function WeeklyLockProvider({ children }: { children: ReactNode }) {
   const { patient } = usePatient();
-  const lockState = useWeeklyLock(patient?.id);
+  const lockState = useWeeklyLock(patient?.id, patient?.assigned_program);
 
   return (
     <WeeklyLockContext.Provider value={lockState}>

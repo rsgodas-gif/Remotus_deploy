@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Play, Check, ChevronDown, ChevronUp, Loader2, X } from 'lucide-react';
 import { usePatient } from '../contexts/PatientContext';
 import { client } from '../lib/api';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const EXERCISE_IMAGE = 'https://mgx-backend-cdn.metadl.com/generate/images/1015757/2026-03-10/ca963e1e-2863-4d73-b9cb-d7476a162e90.png';
 
@@ -346,6 +347,7 @@ function DayPainModal({
   painToday,
   daySubmitting,
   open,
+  previousPainEntry,
   onSetPainToday,
   onSubmitPain,
 }: {
@@ -353,6 +355,7 @@ function DayPainModal({
   painToday: number | null;
   daySubmitting: boolean;
   open: boolean;
+  previousPainEntry: { dayNumber: number; pain: number } | null;
   onSetPainToday: (n: number) => void;
   onSubmitPain: (dayNumber: number) => void;
 }) {
@@ -363,6 +366,11 @@ function DayPainModal({
       <div className="w-full max-w-md bg-white border border-[#E8E5E0] rounded-2xl p-4 shadow-xl">
             <p className="text-base font-semibold text-[#2D3436] mb-1">Diena {dayNumber} užbaigta</p>
             <p className="text-sm text-[#636E72] mb-3">Įvertinkite šiandienos skausmą prieš pereinant toliau.</p>
+            {previousPainEntry && (
+              <p className="text-xs text-[#5B8A72] bg-[#F3FBF6] border border-[#D9E8DF] rounded-lg px-2.5 py-2 mb-3">
+                Paskutinis ivestis: diena {previousPainEntry.dayNumber}, skausmas {previousPainEntry.pain}/10
+              </p>
+            )}
             <p className="text-sm font-medium text-[#2D3436] mb-2">Skausmas šiandien</p>
             <div className="grid grid-cols-6 gap-2 mb-3">
               {Array.from({ length: 11 }, (_, n) => (
@@ -870,6 +878,26 @@ export default function Pratimai() {
     });
     return days;
   }, [beSkausmoState]);
+
+  const painTrendData = useMemo(() => {
+    if (!beSkausmoState) return [];
+    return beSkausmoState.days
+      .filter((d) => d.pain_today !== null)
+      .map((d) => ({
+        day: `D${d.day_number}`,
+        pain: d.pain_today as number,
+      }));
+  }, [beSkausmoState]);
+
+  const previousPainEntry = useMemo(() => {
+    if (!beSkausmoState || painModalDayNumber === null) return null;
+    const prior = beSkausmoState.days
+      .filter((d) => d.day_number < painModalDayNumber && d.pain_today !== null)
+      .sort((a, b) => b.day_number - a.day_number)[0];
+    if (!prior || prior.pain_today === null) return null;
+    return { dayNumber: prior.day_number, pain: prior.pain_today };
+  }, [beSkausmoState, painModalDayNumber]);
+
   useEffect(() => {
     if (!patient || !beSkausmoState?.program_completed) return;
     const submittedKey = `be_skausmo_10_feedback_submitted_${patient.id}`;
@@ -945,6 +973,23 @@ export default function Pratimai() {
               </div>
 
               <div className="space-y-4">
+                {painTrendData.length > 0 && (
+                  <div className="rounded-2xl border border-[#E8E5E0] bg-white p-4 shadow-sm">
+                    <p className="text-sm font-semibold text-[#2D3436] mb-1">Skausmo pokytis</p>
+                    <p className="text-xs text-[#636E72] mb-3">Stebėkite, ar skausmas mažėja per dienas.</p>
+                    <div className="h-44 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={painTrendData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ECE7DE" />
+                          <XAxis dataKey="day" tick={{ fontSize: 12, fill: '#636E72' }} />
+                          <YAxis domain={[0, 10]} tick={{ fontSize: 12, fill: '#636E72' }} />
+                          <Tooltip />
+                          <Line type="monotone" dataKey="pain" stroke="#5B8A72" strokeWidth={3} dot={{ r: 4 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
                 {sortedBeSkausmoDays.map((day) => (
                   <div
                     key={day.day_number}
@@ -1070,6 +1115,7 @@ export default function Pratimai() {
         painToday={painToday}
         daySubmitting={daySubmitting}
         open={painModalDayNumber !== null}
+        previousPainEntry={previousPainEntry}
         onSetPainToday={setPainToday}
         onSubmitPain={submitDayPain}
       />

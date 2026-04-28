@@ -12,7 +12,10 @@ import { client } from '../lib/api';
  *
  * There is no programStartDate in code; do not assume it from older comments elsewhere.
  */
-export function useWeeklyLock(patientId: number | null | undefined) {
+export function useWeeklyLock(
+  patientId: number | null | undefined,
+  assignedProgram?: string | null
+) {
   const [isLocked, setIsLocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [lastProgressDate, setLastProgressDate] = useState<string | null>(null);
@@ -20,6 +23,14 @@ export function useWeeklyLock(patientId: number | null | undefined) {
   const checkLock = useCallback(async () => {
     if (!patientId) {
       setIsLocked(false);
+      setLoading(false);
+      return;
+    }
+
+    // Be skausmo-10 users are never gated by weekly progress.
+    if ((assignedProgram || '').trim().toLowerCase() === 'be skausmo-10') {
+      setIsLocked(false);
+      setLastProgressDate(null);
       setLoading(false);
       return;
     }
@@ -69,7 +80,7 @@ export function useWeeklyLock(patientId: number | null | undefined) {
     } finally {
       setLoading(false);
     }
-  }, [patientId]);
+  }, [patientId, assignedProgram]);
 
   useEffect(() => {
     checkLock();
