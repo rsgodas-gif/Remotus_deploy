@@ -17,7 +17,6 @@ import AuthCallback from './pages/AuthCallback';
 import NotFound from './pages/NotFound';
 import Stebesena from './pages/Stebesena';
 import Pradzia from './pages/Pradzia';
-import PastabosKomentarai from './pages/PastabosKomentarai';
 import Admin from './pages/Admin';
 
 const queryClient = new QueryClient();
@@ -84,7 +83,6 @@ const AppRoutes = () => {
       <Route path="/mityba" element={<ProtectedRoute><Mityba /></ProtectedRoute>} />
       <Route path="/gyvensena" element={<ProtectedRoute><Gyvensena /></ProtectedRoute>} />
       <Route path="/skausmo-paumejimas" element={<ProtectedRoute><SkausmoPaumejimas /></ProtectedRoute>} />
-      <Route path="/pastabos" element={<ProtectedRoute><PastabosKomentarai /></ProtectedRoute>} />
       {/* Progress page is always accessible (allowWhenLocked) */}
       <Route
         path="/progresas"
