@@ -17,12 +17,16 @@ import AuthCallback from './pages/AuthCallback';
 import NotFound from './pages/NotFound';
 import Stebesena from './pages/Stebesena';
 import Pradzia from './pages/Pradzia';
+import PastabosKomentarai from './pages/PastabosKomentarai';
+import Admin from './pages/Admin';
 
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children, allowWhenLocked = false }: { children: React.ReactNode; allowWhenLocked?: boolean }) {
   const { patient, loading } = usePatient();
   const { isLocked, loading: lockLoading } = useWeeklyLockContext();
+  const isBeSkausmo10 = patient?.assigned_program === 'Be skausmo-10';
+
   const hasWeeklyBypass =
     !!patient && sessionStorage.getItem(`weekly_lock_bypass_${patient.id}`) === '1';
 
@@ -43,7 +47,7 @@ function ProtectedRoute({ children, allowWhenLocked = false }: { children: React
   }
 
   // If user is locked and this route doesn't allow locked access, redirect to progress page
-  if (isLocked && !allowWhenLocked && !hasWeeklyBypass) {
+  if (isLocked && !allowWhenLocked && !hasWeeklyBypass && !isBeSkausmo10) {
     return <Navigate to="/progresas" replace />;
   }
 
@@ -71,6 +75,7 @@ const AppRoutes = () => {
       <Route path="/prieiga-neleidziama" element={<AccessDenied />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/pradzia" element={<Pradzia />} />
+      <Route path="/admin" element={<Admin />} />
 
       {/* Protected routes */}
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
@@ -79,8 +84,16 @@ const AppRoutes = () => {
       <Route path="/mityba" element={<ProtectedRoute><Mityba /></ProtectedRoute>} />
       <Route path="/gyvensena" element={<ProtectedRoute><Gyvensena /></ProtectedRoute>} />
       <Route path="/skausmo-paumejimas" element={<ProtectedRoute><SkausmoPaumejimas /></ProtectedRoute>} />
+      <Route path="/pastabos" element={<ProtectedRoute><PastabosKomentarai /></ProtectedRoute>} />
       {/* Progress page is always accessible (allowWhenLocked) */}
-      <Route path="/progresas" element={<ProtectedRoute allowWhenLocked><SavaitesProgresas /></ProtectedRoute>} />
+      <Route
+        path="/progresas"
+        element={
+          <ProtectedRoute allowWhenLocked>
+            {patient?.assigned_program === 'Be skausmo-10' ? <Navigate to="/" replace /> : <SavaitesProgresas />}
+          </ProtectedRoute>
+        }
+      />
       {/* Internal monitoring page (public for early operator/testing usage) */}
       <Route path="/stebesena" element={<Stebesena />} />
       <Route path="*" element={<NotFound />} />
